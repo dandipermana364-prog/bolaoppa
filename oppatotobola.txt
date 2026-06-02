@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOGELUP - Dashboard Generator Dynamic V6</title>
+  <style>
+    :root {
+      --primary: #00ffd5;
+      --primary-2: #00a6ff;
+      --gold: #ffd666;
+      --red: #ff3d5a;
+      --bg-dark: #050908;
+      --card-bg: rgba(8, 18, 16, 0.92);
+      --border: rgba(0, 255, 213, 0.24);
+      --soft: rgba(255, 255, 255, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      color: #eefcf9;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,.12), transparent 34%),
+        linear-gradient(135deg, #020504, #07110f 45%, #020504);
+      min-height: 100vh;
+    }
+
+    .main-container {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 28px;
+      border: 1.5px solid rgba(0,255,213,.65);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(8,18,16,.96), rgba(4,8,7,.98));
+      box-shadow:
+        0 25px 70px rgba(0,0,0,.55),
+        0 0 30px rgba(0,255,213,.16),
+        inset 0 0 28px rgba(0,255,213,.05);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .main-container::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background:
+        linear-gradient(120deg, transparent, rgba(0,255,213,.12), transparent),
+        radial-gradient(circle at right top, rgba(0,166,255,.18), transparent 30%);
+      pointer-events: none;
+    }
+
+    .main-container > * { position: relative; z-index: 1; }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 56px);
+      letter-spacing: 9px;
+      color: var(--primary);
+      text-shadow: 0 0 12px rgba(0,255,213,.9), 0 0 30px rgba(0,255,213,.36);
+      line-height: 1;
+    }
+
+    .header p {
+      margin: 12px 0 0;
+      color: #9bb7b2;
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .input-group.full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+    }
+
+    input, textarea {
+      width: 100%;
+      color: #fff;
+      background: rgba(0,0,0,.48);
+      border: 1px solid rgba(0,255,213,.26);
+      border-radius: 15px;
+      padding: 14px 15px;
+      outline: none;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 14px;
+      transition: .25s ease;
+      box-shadow: inset 0 0 20px rgba(0,0,0,.25);
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,255,213,.08), inset 0 0 20px rgba(0,0,0,.3);
+    }
+
+    textarea#inputData {
+      min-height: 260px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .helper {
+      margin-top: 8px;
+      color: #8ba5a0;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 20px 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 16px 18px;
+      cursor: pointer;
+      font-weight: 950;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+      transition: .25s ease;
+    }
+
+    .btn-gen {
+      color: #00110e;
+      background: linear-gradient(90deg, var(--primary), #7dff9b);
+      box-shadow: 0 0 22px rgba(0,255,213,.25);
+    }
+
+    .btn-copy {
+      color: #fff;
+      background: linear-gradient(90deg, #1b2725, #0a1210);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    button:hover { transform: translateY(-2px); filter: brightness(1.08); }
+
+    #outputHTML {
+      height: 170px;
+      margin-top: 5px;
+      color: #00ffd5;
+      background: #000;
+      border-color: rgba(255,214,102,.32);
+      font-size: 12px;
+    }
+
+    .preview-label {
+      margin-top: 26px;
+      text-align: center;
+      color: #6c837e;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    #livePreview {
+      margin-top: 15px;
+      padding: 18px;
+      min-height: 220px;
+      background: #000;
+      border: 1px dashed rgba(0,255,213,.28);
+      border-radius: 22px;
+      overflow: auto;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 12px; }
+      .main-container { padding: 18px; border-radius: 22px; }
+      .form-grid, .btn-group { grid-template-columns: 1fr; }
+      .header h1 { letter-spacing: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="header">
+      <h1>TOGELUP</h1>
+      <p>⚡ Generator Dashboard Dinamis - Paste Liga Langsung Update Data ⚡</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="input-group">
+        <label>📅 Tanggal Prediksi</label>
+        <input type="text" id="inputDate" value="29 MEI — 30 MEI 2026" />
+      </div>
+
+      <div class="input-group">
+        <label>🔥 Running Text</label>
+        <input type="text" id="inputMarquee" value="PREDIKSI BOLA TERUPDATE TOGELUP! DAFTAR SEKARANG DAN MENANGKAN JACKPOT ANDA!" />
+      </div>
+
+      <div class="input-group full">
+        <label>🟢 Data Pertandingan</label>
+        <textarea id="inputData" placeholder="NORWAY ELITESERIEN&#10;30/05 00:00 WIB Rosenborg vs Bodo Glimt 1 : 2&#10;30/05 00:00 WIB Aalesund FK vs Ham-Kam 1 : 1&#10;&#10;SWEDEN ALLSVENSKAN&#10;30/05 00:00 WIB Orgryte vs Elfsborg 1 : 2"></textarea>
+        <div class="helper">
+          Format: tulis nama liga di baris sendiri, lalu isi match di bawahnya. Saat tombol generate ditekan, nama liga, select liga, table, team, score, dan jam akan otomatis berubah mengikuti data yang ditempel.
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-gen" onclick="generateDashboard()">🚀 Generate Dashboard Besar</button>
+      <button class="btn-copy" onclick="copyCode()">📋 Salin Kode HTML</button>
+    </div>
+
+    <textarea id="outputHTML" readonly placeholder="Kode HTML final akan muncul di sini..."></textarea>
+
+    <div class="preview-label">Live Preview Hasil Dashboard</div>
+    <div id="livePreview"></div>
+  </div>
+
+  <script>
+    const DEFAULT_BG = "https://cdn.areabermain.club/assets/cdn/az5/2026/04/03/20260403/f2e48b747f68e5aece507a90edf81698/togel-up-background-mobile.jpg";
+    const DEFAULT_LOGO = "https://cdn.areabermain.club/assets/cdn/az5/2026/05/29/20260529/46236f951e1bbd958b1c0c3d464d3983/logo-togelup-transparent.png";
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function parseMatchLine(line) {
+      const clean = line.replace(/\s+/g, " ").trim();
+      const regex = /^(\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(?:WIB|WITA|WIT)?)\s+(.+?)\s+vs\s+(.+?)(?:\s+((?:\d+(?:[\/.]\d+)?|\d+)\s*:\s*(?:\d+(?:[\/.]\d+)?|\d+)))?$/i;
+      const found = clean.match(regex);
+
+      if (found) {
+        return {
+          time: found[1].trim(),
+          home: found[2].trim(),
+          away: found[3].trim(),
+          score: found[4] ? found[4].replace(/\s*:\s*/, " : ").trim() : "VS"
+        };
+      }
+
+      const parts = clean.split(/\s+vs\s+/i);
+      if (parts.length >= 2) {
+        const left = parts[0].trim();
+        const right = parts.slice(1).join(" vs ").trim();
+        const timeMatch = left.match(/^(\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(?:WIB|WITA|WIT)?)/i);
+        const scoreMatch = right.match(/((?:\d+(?:[\/.]\d+)?|\d+)\s*:\s*(?:\d+(?:[\/.]\d+)?|\d+))$/);
+        const time = timeMatch ? timeMatch[1].trim() : "-";
+        const home = timeMatch ? left.replace(timeMatch[1], "").trim() : left;
+        const score = scoreMatch ? scoreMatch[1].replace(/\s*:\s*/, " : ").trim() : "VS";
+        const away = scoreMatch ? right.replace(scoreMatch[1], "").trim() : right;
+
+        return { time, home, away, score };
+      }
+
+      return { time: "-", home: clean, away: "-", score: "VS" };
+    }
+
+    function parseInputData(raw) {
+      const lines = raw
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const leagues = [];
+      let currentLeague = null;
+
+      lines.forEach(line => {
+        if (/\s+vs\s+/i.test(line)) {
+          if (!currentLeague) {
+            currentLeague = { name: "PREDIKSI BOLA", matches: [] };
+            leagues.push(currentLeague);
+          }
+          currentLeague.matches.push(parseMatchLine(line));
+        } else {
+          currentLeague = { name: line, matches: [] };
+          leagues.push(currentLeague);
+        }
+      });
+
+      return leagues.filter(league => league.matches.length > 0);
+    }
+
+    function buildDashboardHTML(dateVal, marqueeVal, leagues) {
+      const date = escapeHTML(dateVal || "-");
+      const marquee = escapeHTML(marqueeVal || "");
+
+      let options = `<option value="all">Tampilkan Semua Liga</option>`;
+      leagues.forEach((league, index) => {
+        options += `<option value="lg-${index}">${escapeHTML(league.name)}</option>`;
+      });
+
+      let groups = "";
+      leagues.forEach((league, index) => {
+        let rows = "";
+        league.matches.forEach(match => {
+          rows += `
+              <tr>
+                <td class="tg-team tg-left">${escapeHTML(match.home)}</td>
+                <td class="tg-center">
+                  <div class="tg-score">${escapeHTML(match.score)}</div>
+                  <div class="tg-time">${escapeHTML(match.time)}</div>
+                </td>
+                <td class="tg-team tg-right">${escapeHTML(match.away)}</td>
+              </tr>`;
+        });
+
+        groups += `
+        <section class="tg-group" id="lg-${index}">
+          <div class="tg-league-title">🏆 ${escapeHTML(league.name)} 🏆</div>
+          <div class="tg-table-wrap">
+            <table class="tg-table">
+              <tbody>${rows}
+              </tbody>
+            </table>
+          </div>
+        </section>`;
+      });
+
+      return `<!-- TogelUP Dashboard Start -->
+<div id="tgup-dash-pro">
+  <style>
+    #tgup-dash-pro {
+      --cyan: #00ffd5;
+      --blue: #00a6ff;
+      --gold: #ffd666;
+      width: min(100%, 1180px);
+      max-width: 1180px;
+      margin: 14px auto;
+      padding: 28px;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      border-radius: 30px;
+      border: 1.5px solid rgba(0,255,213,.72);
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.9)),
+        url('${DEFAULT_BG}');
+      background-size: cover;
+      background-position: center top;
+      box-shadow: 0 0 30px rgba(0,255,213,.24), inset 0 0 34px rgba(0,255,213,.07);
+      overflow: hidden;
+      position: relative;
+    }
+    #tgup-dash-pro * { box-sizing: border-box; }
+    #tgup-dash-pro::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top center, rgba(0,255,213,.22), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(0,166,255,.18), transparent 28%);
+      pointer-events: none;
+    }
+    #tgup-dash-pro > * { position: relative; z-index: 1; }
+    #tgup-dash-pro .tg-logo-box {
+      width: 100%;
+      min-height: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      margin-bottom: 18px;
+      background: linear-gradient(180deg, rgba(0,30,27,.74), rgba(0,0,0,.48));
+      border: 1px solid rgba(0,255,213,.18);
+      box-shadow: inset 0 0 28px rgba(0,255,213,.08);
+    }
+    #tgup-dash-pro .tg-logo-box img {
+      width: min(92%, 560px);
+      max-height: 190px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(0,255,213,.9)) drop-shadow(0 0 26px rgba(0,166,255,.42));
+    }
+    #tgup-dash-pro .tg-control-row {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(0,0,0,.48);
+      border: 1px solid rgba(255,255,255,.07);
+    }
+    #tgup-dash-pro .tg-date,
+    #tgup-dash-pro .tg-select {
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.64);
+      border: 1.5px solid rgba(0,255,213,.7);
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: .6px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      box-shadow: inset 0 0 18px rgba(0,255,213,.06);
+    }
+    #tgup-dash-pro .tg-select-wrap { position: relative; }
+    #tgup-dash-pro .tg-select {
+      width: 100%;
+      appearance: none;
+      outline: none;
+      cursor: pointer;
+      font-size: 15px;
+      padding-right: 45px;
+      border-color: rgba(255,61,90,.9);
+    }
+    #tgup-dash-pro .tg-select-wrap::after {
+      content: "▼";
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--cyan);
+      font-size: 12px;
+      pointer-events: none;
+    }
+    #tgup-dash-pro .tg-running {
+      margin-bottom: 22px;
+      padding: 15px 18px;
+      border-radius: 18px;
+      color: var(--gold);
+      font-weight: 950;
+      letter-spacing: 1.4px;
+      background: rgba(0,0,0,.62);
+      border: 1.5px solid rgba(255,214,102,.85);
+      white-space: nowrap;
+      overflow: hidden;
+      box-shadow: 0 0 18px rgba(255,214,102,.12);
+    }
+    #tgup-dash-pro .tg-group {
+      margin-bottom: 24px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: rgba(0,0,0,.62);
+      border: 1px solid rgba(0,255,213,.35);
+      box-shadow: 0 18px 34px rgba(0,0,0,.42), inset 0 0 24px rgba(0,255,213,.05);
+    }
+    #tgup-dash-pro .tg-league-title {
+      padding: 18px;
+      text-align: center;
+      color: #ffe1a0;
+      font-size: 17px;
+      font-weight: 950;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, rgba(0,255,213,.11), rgba(0,166,255,.18), rgba(0,255,213,.11));
+      border-bottom: 1px solid rgba(0,255,213,.58);
+      text-shadow: 0 0 14px rgba(255,214,102,.34);
+    }
+    #tgup-dash-pro .tg-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    #tgup-dash-pro .tg-table {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    #tgup-dash-pro .tg-table tr {
+      border-bottom: 1px solid rgba(0,255,213,.09);
+    }
+    #tgup-dash-pro .tg-table tr:last-child { border-bottom: 0; }
+    #tgup-dash-pro .tg-table td {
+      padding: 23px 22px;
+      vertical-align: middle;
+    }
+    #tgup-dash-pro .tg-team {
+      width: 38%;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.35;
+      text-shadow: 0 2px 5px #000;
+    }
+    #tgup-dash-pro .tg-left { text-align: left; }
+    #tgup-dash-pro .tg-right { text-align: right; }
+    #tgup-dash-pro .tg-center { width: 24%; text-align: center; }
+    #tgup-dash-pro .tg-score {
+      min-width: 138px;
+      min-height: 60px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 18px;
+      color: var(--cyan);
+      font-size: 34px;
+      font-weight: 1000;
+      line-height: 1;
+      background: linear-gradient(180deg, rgba(0,255,213,.14), rgba(0,0,0,.36));
+      border: 1px solid rgba(0,255,213,.23);
+      text-shadow: 0 0 10px rgba(0,255,213,.95), 0 0 24px rgba(0,255,213,.58);
+      box-shadow: inset 0 0 18px rgba(0,255,213,.05);
+    }
+    #tgup-dash-pro .tg-time {
+      margin-top: 9px;
+      color: #bfd1ce;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    #tgup-dash-pro .tg-footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 2px;
+      opacity: .9;
+      text-shadow: 0 0 12px rgba(0,255,213,.7);
+    }
+    @media (max-width: 760px) {
+      #tgup-dash-pro { padding: 16px; border-radius: 22px; }
+      #tgup-dash-pro .tg-logo-box { min-height: 160px; }
+      #tgup-dash-pro .tg-logo-box img { width: min(98%, 430px); max-height: 135px; }
+      #tgup-dash-pro .tg-control-row { grid-template-columns: 1fr; padding: 12px; }
+      #tgup-dash-pro .tg-table { min-width: 720px; }
+      #tgup-dash-pro .tg-table td { padding: 18px 14px; }
+      #tgup-dash-pro .tg-team { font-size: 14px; }
+      #tgup-dash-pro .tg-score { font-size: 29px; min-width: 116px; }
+    }
+  </style>
+
+  <div class="tg-logo-box">
+    <img src="${DEFAULT_LOGO}" alt="TogelUP Logo" />
+  </div>
+
+  <div class="tg-control-row">
+    <div class="tg-date">📅 ${date}</div>
+    <div class="tg-select-wrap">
+      <select class="tg-select" onchange="tgFilter(this.value)">
+        ${options}
+      </select>
+    </div>
+  </div>
+
+  <div class="tg-running">
+    <marquee scrollamount="5">🔥 ${marquee} 🔥</marquee>
+  </div>
+
+  <div id="tg-match-wrap">
+    ${groups}
+  </div>
+
+  <div class="tg-footer">PREDIKSI TERAKURAT © WWW.TOGELUP.COM</div>
+
+  <script>
+    function tgFilter(value) {
+      document.querySelectorAll('#tgup-dash-pro .tg-group').forEach(group => {
+        group.style.display = value === 'all' || group.id === value ? 'block' : 'none';
+      });
+    }
+  <\/script>
+</div>
+<!-- TogelUP Dashboard End -->`;
+    }
+
+    function generateDashboard() {
+      const dateVal = document.getElementById("inputDate").value;
+      const marqueeVal = document.getElementById("inputMarquee").value;
+      const dataVal = document.getElementById("inputData").value;
+
+      if (!dataVal.trim()) {
+        alert("Masukkan data pertandingan terlebih dahulu!");
+        return;
+      }
+
+      const leagues = parseInputData(dataVal);
+      if (!leagues.length) {
+        alert("Data belum terbaca. Pastikan format match memakai kata 'vs', contoh: 30/05 00:00 WIB Team A vs Team B 1 : 2");
+        return;
+      }
+
+      const html = buildDashboardHTML(dateVal, marqueeVal, leagues);
+      document.getElementById("outputHTML").value = html;
+      document.getElementById("livePreview").innerHTML = html;
+    }
+
+    // Fungsi ini dipakai agar dropdown filter tetap jalan di live preview generator.
+    // Kode hasil generate juga sudah punya fungsi filter sendiri saat ditempel di website.
+    function tgFilter(value) {
+      document.querySelectorAll('#livePreview #tgup-dash-pro .tg-group').forEach(group => {
+        group.style.display = value === 'all' || group.id === value ? 'block' : 'none';
+      });
+    }
+
+    async function copyCode() {
+      const output = document.getElementById("outputHTML");
+      if (!output.value) {
+        alert("Generate kode terlebih dahulu.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+        alert("Kode HTML berhasil disalin!");
+      } catch (err) {
+        output.select();
+        document.execCommand("copy");
+        alert("Kode HTML berhasil disalin!");
+      }
+    }
+  </script>
+</body>
+</html>
